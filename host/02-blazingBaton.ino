@@ -11,12 +11,8 @@
 Adafruit_NeoPixel pixels = Adafruit_NeoPixel(NUMPIXELS, PINLEDSTRIP, NEO_GRB + NEO_KHZ800);
 
 // those variables are for "05-midiEvents.ino"
-////unsigned long tickCounter = 0;      // incremental counter since clock-start-event
-unsigned long lastClockStartMs = 0;       // millisecond of last clock-start-event
 unsigned long lastBarStartMicros = 0;     // microsecond of last bar first tick (@24 ppqm 1, 97, 193, ) to calculate tempo or tickWidth
-unsigned long lastBarStartTickNumber = 0; // the most recent start tick of bar whichs millisecond is stored in lastClockStartMs
-/////uint16_t tickWidth = 8000;          // microseconds between 2 ticks
-/////bool clockRunning = true;
+unsigned long lastBarStartTickNumber = 0; // the most recent start tick of bar whichs millisecond is stored in lastBarStartMicros
 
 const int countDownToQuarterNote = 64; /** end of countdown [quarter note] (should be a multiple of NUMPIXELS) */
 
@@ -50,15 +46,6 @@ int currentStepLedIndex = 0;       /** index of last highlighted led (starting f
 uint32_t lastState[NUMSTATES];
 uint32_t newState[NUMSTATES];
 
-/**
- * those data that is been sent to the client is only blazing baon/midiclock relevant
- * replace this with your own application date and make sure to modify clients "neededDelimiterAmount"
- */
-String appendApplicationData()
-{
-  return ";" + String((clockRunning) ? "1" : "0") + ";" + String(tickCounter) + ";" + String(tickWidth);
-}
-
 void handleMidiEventStartBaton()
 {
   tickCounterBatonLoop = tickCounter % maxTicks;
@@ -79,23 +66,6 @@ void handleMidiEventTickBaton()
   tickCounterBatonLoop = tickCounter % maxTicks;
   insideQuarterNoteCounter = (tickCounterBatonLoop / ppqn) + 1;
   currentSection = (tickCounterBatonLoop / (ppqn * NUMPIXELS)) + 1;
-  //debug("inside quarter note " + String(insideQuarterNoteCounter));
-
-  //debug("insideQuarterNoteCounter" + String(insideQuarterNoteCounter));
-  //debug("currentSection" + String(currentSection));
-  //if (tickCounterBatonLoop > maxTicks) {
-  //  tickCounterBatonLoop = 1;
-  //}
-  //if (tickCounterBatonLoop%ppqn == 0) {
-  //  insideQuarterNoteCounter++;
-  //  if (insideQuarterNoteCounter > countDownToQuarterNote) {
-  //    insideQuarterNoteCounter = 1;
-  //  }
-  //  currentSection = insideQuarterNoteCounter/NUMPIXELS;
-  //  if (insideQuarterNoteCounter%NUMPIXELS != 0) {
-  //    currentSection++;
-  //  }
-  //}
   prepareNewLedStates();
   checkLedChange();
 }
@@ -113,7 +83,6 @@ void prepareNewLedStates()
     standardLedStates();
     return;
   }
-  //debug("inside quarter note " + String(insideQuarterNoteCounter));
   countdownLedStates();
 }
 

@@ -1,7 +1,5 @@
-
-
 /**
- * until there 
+ * interpolate midi events (ticks) between real MIDI status pushed by host
  */
 
 unsigned long lastFakeTrigger = 0;
@@ -10,7 +8,8 @@ unsigned long lastVerifiedHostTickMilliSecond = 0;
 
 void reconfigureFakeMidiEventGenerator(struct payload_t payload)
 {
-
+  // assume our RF latency is 25 milliseconds
+  timeDeltaToHost = payload.hostTime - millis() + 25;
   if (clockRunning == true && payload.clockRunning == false)
   {
     handleMidiEventStop();
@@ -19,12 +18,10 @@ void reconfigureFakeMidiEventGenerator(struct payload_t payload)
   {
     handleMidiEventStart();
   }
-  tickWidth = payload.tickWidth;
 
+  tickWidth = payload.tickWidth;
   lastVerifiedHostTickNumber = payload.currentTick;
   lastVerifiedHostTickMilliSecond = payload.hostTime;
-
-  timeDeltaToHost = payload.hostTime - millis() + 25;
 
   recalculateCurrentTickNumber();
 }
@@ -49,7 +46,4 @@ void triggerFakeEventTick()
 void fakeMidiEventsLoop()
 {
   recalculateCurrentTickNumber();
-  //int ticksDelta = 0;
-  //
-  // if(tickCounter)
 }

@@ -9,11 +9,10 @@
 const uint16_t minBpmTickWidth = 65000; // [microseconds] =~ 38 BPM
 const uint16_t maxBpmTickWidth = 8000;  // [microseconds] =~ 312 BPM
 
-// avoid sending invalid tempo to clients
-// by store the last few tick widths calculations and send value that exists most often
+// avoid sending invalid tempo to clients by storing the last
+// few tick widths calculations and send value that exists most often
 const uint8_t debounceLength = 8;
 uint8_t currentTickWidthDebouncer = 0;
-
 uint16_t debouncedTickWidths[debounceLength];
 uint16_t indexMappingDebounce[debounceLength];
 uint16_t counts[debounceLength];
@@ -24,27 +23,15 @@ MIDI_CREATE_DEFAULT_INSTANCE();
 
 void setupMidiStuff()
 {
-  if (this_node != 00)
-  {
-    return;
-  }
   MIDI.begin(); // Launch MIDI, by default listening to channel 1.
   MIDI.setHandleClock(handleMidiEventTick);
   MIDI.setHandleTick(handleMidiEventTick);
   MIDI.setHandleStop(handleMidiEventStop);
   MIDI.setHandleStart(handleMidiEventStart);
-
-  //Serial.begin(19200);
 }
-
-byte incomingByte;
 
 void midiStuffLoop()
 {
-  if (this_node != 00)
-  {
-    return;
-  }
   MIDI.read();
 }
 
@@ -148,13 +135,6 @@ void setDebouncedTickWidth()
       break;
     }
   }
-
-  //for (int x = 0; x < debounceLength; x++ ) {
-  //  if (counts[x] != 0) {
-  //     debug("ElementWithValue[" + String(indexMappingDebounce[x])+ "] = count: " + String( counts[x]) );
-  //  }
-  //}
-  //debug("highest index: " + String(getIndexOfMaximumValue(counts, debounceLength) ));
   tickWidth = indexMappingDebounce[getIndexOfMaximumValue(counts, debounceLength)];
 }
 
@@ -172,15 +152,11 @@ void handleMidiEventStart()
 {
   clockRunning = true;
   tickCounter = 0;
-  lastClockStartMs = millis();
 
   // do stuff thats only blazing baton related
   handleMidiEventStartBaton();
-  if (this_node != 00)
-  {
-    // only host ("00") needs to push to clients
-    return;
-  }
+
+  // only relevant for host
   pushToAllConnectedClients();
 }
 
@@ -191,10 +167,7 @@ void handleMidiEventStop()
 
   // do stuff thats only blazing baton related
   handleMidiEventStopBaton();
-  if (this_node != 00)
-  {
-    // only host ("00") needs to push to clients
-    return;
-  }
+
+  // only relevant for host
   pushToAllConnectedClients();
 }

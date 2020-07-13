@@ -14,22 +14,19 @@ unsigned long lastDistrubution = 0;
 const uint16_t distributionInterval = 5000;
 
 unsigned long tickCounter = 0; // incremental counter since clock-start-event
-uint16_t tickWidth = 8000;     // microseconds between 2 ticks
+uint16_t tickWidth = 8000;     // time distance between 2 ticks [microseconds]
 bool clockRunning = true;
 
 RF24 radio(10, 9);          // nRF24L01 (CE,CSN)
 RF24Network network(radio); // Include the radio in the network
 
-const uint16_t this_node = 00; // Address of this node in Octal format ( 04,031, etc)
-const uint16_t node01 = 01;
-const uint16_t node02 = 02;
-const uint16_t node03 = 03;
-const uint16_t node04 = 04;
-const uint16_t node05 = 05;
-
+// Address of nodes in Octal format ( 04,031, etc)
+const uint16_t this_node = 00;
 const uint16_t clientNodes[5] = {01, 02, 03, 04, 05};
+
+// Structure of our payload
 struct payload_t
-{ // Structure of our payload
+{
   unsigned long hostTime;
   bool clockRunning;
   uint16_t tickWidth;
@@ -40,19 +37,21 @@ void setupRF24Network()
 {
   SPI.begin();
   radio.begin();
-  //radio.setRetries(1,15);
   network.begin(90, this_node); // (channel, node address)
+  // TODO: check if we have to care about non existing clients
   //network.txTimeout = 10;
+  //radio.setRetries(1,15);
 }
 
 void loopRF24Network()
 {
   network.update();
 
-  if (millis() - lastDistrubution > distributionInterval)
+  if (millis() - lastDistrubution < distributionInterval)
   {
-    pushToAllConnectedClients();
+    return;
   }
+  pushToAllConnectedClients();
 }
 
 void pushToAllConnectedClients()
@@ -63,8 +62,6 @@ void pushToAllConnectedClients()
       clockRunning,
       tickWidth,
       tickCounter};
-
-  //bool ok = network.write(header, &payload, sizeof(payload)); // Send the data
 
   for (uint8_t i = 0; i < 5; i++)
   {

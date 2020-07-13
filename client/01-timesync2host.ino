@@ -9,7 +9,7 @@
 #include <SPI.h>
 
 unsigned long tickCounter = 0; // incremental counter since clock-start-event
-uint16_t tickWidth = 8000;     // microseconds between 2 ticks
+uint16_t tickWidth = 8000;     // time distance between 2 ticks [microseconds]
 bool clockRunning = true;
 
 int32_t timeDeltaToHost = 0;
@@ -20,8 +20,9 @@ const uint16_t this_node = 01; // Address of our node in Octal format ( 04,031, 
 
 unsigned long lastIncomingData = 0;
 
+// Structure of our payload
 struct payload_t
-{ // Structure of our payload
+{
   unsigned long hostTime;
   bool clockRunning;
   uint16_t tickWidth;
