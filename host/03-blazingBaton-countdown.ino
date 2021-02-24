@@ -26,19 +26,19 @@ void countdownLedStatesV1()
   {
   case countDownStartTick:
     clearLedStates();
-    batchColor(1, 4, colorCountDown);
+    batchColor(1, 4, getColorCountDown());
     break;
   case countDownStartTick + ppqn:
     clearLedStates();
-    batchColor(5, 8, colorCountDown);
+    batchColor(5, 8, getColorCountDown());
     break;
   case countDownStartTick + 2 * ppqn:
     clearLedStates();
-    batchColor(9, 12, colorCountDown);
+    batchColor(9, 12, getColorCountDown());
     break;
   case countDownStartTick + 3 * ppqn:
     uint16_t
-        batchColor(1, 16, colorCountDown);
+        batchColor(1, 16, getColorCountDown());
     break;
   case countDownStartTick + flashDuration:
   case countDownStartTick + flashDuration + ppqn:
@@ -66,21 +66,21 @@ void countdownLedStatesV2()
   {
   case countDownStartTick:
     clearLedStates();
-    batchColor(1, 4, colorCountDown);
-    batchColor(7, 10, colorCountDown);
-    batchColor(13, 16, colorCountDown);
+    batchColor(1, 4, getColorCountDown());
+    batchColor(7, 10, getColorCountDown());
+    batchColor(13, 16, getColorCountDown());
     break;
   case countDownStartTick + ppqn:
     clearLedStates();
-    batchColor(3, 6, colorCountDown);
-    batchColor(11, 14, colorCountDown);
+    batchColor(3, 6, getColorCountDown());
+    batchColor(11, 14, getColorCountDown());
     break;
   case countDownStartTick + 2 * ppqn:
     clearLedStates();
-    batchColor(7, 10, colorCountDown);
+    batchColor(7, 10, getColorCountDown());
     break;
   case countDownStartTick + 3 * ppqn:
-    batchColor(1, 16, colorCountDown);
+    batchColor(1, 16, getColorCountDown());
     break;
   case countDownStartTick + flashDuration:
   case countDownStartTick + flashDuration + ppqn:

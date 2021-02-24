@@ -10,13 +10,16 @@ void reconfigureFakeMidiEventGenerator(struct payload_t payload)
 {
   // assume our RF latency is 25 milliseconds
   timeDeltaToHost = payload.hostTime - millis() + 25;
-  if (clockRunning == true && payload.clockRunning == false)
-  {
-    handleMidiEventStop();
-  }
-  if (clockRunning == false && payload.clockRunning == true)
-  {
-    handleMidiEventStart();
+  
+  if (currentDataSource == DATASOURCE_IS_RFHOST) {
+    if (clockRunning == true && payload.clockRunning == false)
+    {
+      handleMidiEventStop();
+    }
+    if (clockRunning == false && payload.clockRunning == true)
+    {
+      handleMidiEventStart();
+    }
   }
 
   tickWidth = payload.tickWidth;
@@ -32,6 +35,9 @@ void recalculateCurrentTickNumber()
   if (myTickShoudNowBe == tickCounter)
   {
     // we are still in sync
+    return;
+  }
+  if (currentDataSource != DATASOURCE_IS_RFHOST) {
     return;
   }
   tickCounter = myTickShoudNowBe - 1;

@@ -24,15 +24,20 @@ MIDI_CREATE_DEFAULT_INSTANCE();
 void setupMidiStuff()
 {
   MIDI.begin(); // Launch MIDI, by default listening to channel 1.
-  MIDI.setHandleClock(handleMidiEventTick);
-  MIDI.setHandleTick(handleMidiEventTick);
-  MIDI.setHandleStop(handleMidiEventStop);
-  MIDI.setHandleStart(handleMidiEventStart);
+  MIDI.setHandleClock(handleMidiEventTickFromSerial);
+  MIDI.setHandleTick(handleMidiEventTickFromSerial);
+  MIDI.setHandleStop(handleMidiEventStopFromSerial);
+  MIDI.setHandleStart(handleMidiEventStartFromSerial);
 }
 
 void midiStuffLoop()
 {
   MIDI.read();
+}
+
+void handleMidiEventTickFromSerial() {
+  lastMidiEventFromSerial = millis();
+  handleMidiEventTick();
 }
 
 void handleMidiEventTick()
@@ -148,6 +153,11 @@ float tickWidthToBpm()
   return 60 / (tickWidth * 0.000001 * ppqn);
 }
 
+void handleMidiEventStartFromSerial() {
+  lastMidiEventFromSerial = millis();
+  handleMidiEventStart();
+}
+
 void handleMidiEventStart()
 {
   clockRunning = true;
@@ -158,6 +168,11 @@ void handleMidiEventStart()
 
   // only relevant for host
   pushToAllConnectedClients();
+}
+
+void handleMidiEventStopFromSerial() {
+  lastMidiEventFromSerial = millis();
+  handleMidiEventStop();
 }
 
 void handleMidiEventStop()

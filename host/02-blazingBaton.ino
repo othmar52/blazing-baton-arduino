@@ -28,6 +28,21 @@ const uint32_t colorYellow = pixels.Color(255, 255, 0);
 const uint32_t colorDefault = colorMagenta;
 const uint32_t colorCountDown = colorBlue;
 const uint32_t colorSectionIndex = colorCyan;
+// const uint32_t colorNoSignal = colorRed;
+
+const uint32_t colorDefaultForSourceSerial = colorMagenta;
+const uint32_t colorCountDownForSourceSerial  = colorBlue;
+const uint32_t colorSectionIndexForSourceSerial  = colorCyan;
+
+const uint32_t colorDefaultForSourceRfHost = colorMagenta;
+const uint32_t colorCountDownForSourceRfHost  = colorBlue;
+const uint32_t colorSectionIndexForSourceRfHost  = colorYellow;
+
+const uint32_t colorDefaultForSourceNone = colorRed;
+const uint32_t colorCountDownForSourceNone  = colorWhite;
+const uint32_t colorSectionIndexForSourceNone  = colorWhite;
+
+
 
 /** some helper vars that does not change during runtime */
 const int ppqn = 24;                                /** pulses per quarter note */
@@ -43,19 +58,56 @@ int insideQuarterNoteCounter = 0;  /** on quarter note start */
 int currentSection = 1;            /** loop index (starting from 1) */
 int currentStepLedIndex = 0;       /** index of last highlighted led (starting from 0) */
 
+// uint32_t idleColor = colorDefault;
+
 uint32_t lastState[NUMSTATES];
 uint32_t newState[NUMSTATES];
+
+
+uint32_t getColorDefault() {
+  if (currentDataSource == DATASOURCE_IS_RFHOST) {
+    return colorDefaultForSourceRfHost;
+  }
+  if (currentDataSource == DATASOURCE_IS_SERIAL) {
+    return colorDefaultForSourceSerial;
+  }
+  return colorDefaultForSourceNone;
+}
+
+uint32_t getColorCountDown() {
+  if (currentDataSource == DATASOURCE_IS_RFHOST) {
+    return colorCountDownForSourceRfHost;
+  }
+  if (currentDataSource == DATASOURCE_IS_SERIAL) {
+    return colorCountDownForSourceSerial;
+  }
+  return colorCountDownForSourceNone;
+}
+
+uint32_t getColorSectionIndex() {
+  if (currentDataSource == DATASOURCE_IS_RFHOST) {
+    return colorSectionIndexForSourceRfHost;
+  }
+  if (currentDataSource == DATASOURCE_IS_SERIAL) {
+    return colorSectionIndexForSourceSerial;
+  }
+  return colorSectionIndexForSourceNone;
+}
 
 void handleMidiEventStartBaton()
 {
   tickCounterBatonLoop = tickCounter % maxTicks;
   insideQuarterNoteCounter = (tickCounterBatonLoop / ppqn) + 1;
+  prepareNewLedStates();
+  checkLedChange();
 }
 
 void handleMidiEventStopBaton()
 {
   tickCounterBatonLoop = tickCounter % maxTicks;
   insideQuarterNoteCounter = (tickCounterBatonLoop / ppqn) + 1;
+  prepareNewLedStates();
+  checkLedChange();
 }
 
 // we cant use incremental operator as this script is used by host AND client
@@ -98,7 +150,7 @@ void standardLedStates()
     newState[i] = 0;
     if (i + 1 <= insideQuarterNoteCounter % NUMPIXELS || insideQuarterNoteCounter % NUMPIXELS == 0)
     {
-      newState[i] = colorDefault;
+      newState[i] = getColorDefault();
       currentStepLedIndex = i;
     }
   }
@@ -119,7 +171,7 @@ void sectionIndexLedStates()
     {
       continue;
     }
-    newState[ledIndexOfSection] = colorSectionIndex;
+    newState[ledIndexOfSection] = getColorSectionIndex();
   }
 }
 
@@ -133,10 +185,10 @@ void idleLedStates()
   clearLedStates();
   if (insideQuarterNoteCounter % 2 == 0)
   {
-    newState[0] = colorDefault;
+    newState[0] = getColorDefault();
     return;
   }
-  newState[1] = colorDefault;
+  newState[1] = getColorDefault();
 }
 
 void checkLedChange()

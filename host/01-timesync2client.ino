@@ -5,6 +5,10 @@
   Libraries:
   nRF24/RF24, https://github.com/nRF24/RF24
   nRF24/RF24Network, https://github.com/nRF24/RF24Network
+
+  TODO:
+  try https://www.seeedstudio.com/blog/2019/11/21/nrf24l01-getting-started-arduino-guide/
+  maybe there is no need for the rf24-network because we have no bidirektional communication
 */
 #include <RF24.h>
 #include <RF24Network.h>
@@ -61,11 +65,12 @@ void pushToAllConnectedClients()
       millis(),
       clockRunning,
       tickWidth,
-      tickCounter};
+      tickCounter
+  };
 
   for (uint8_t i = 0; i < 5; i++)
   {
-    RF24NetworkHeader header(clientNodes[i]);                   // (Address where the data is going)
+    RF24NetworkHeader header(clientNodes[i]);                   // Address where the data is going
     bool ok = network.write(header, &payload, sizeof(payload)); // Send the data
   }
   lastDistrubution = millis();
