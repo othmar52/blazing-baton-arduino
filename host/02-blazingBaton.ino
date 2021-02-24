@@ -6,9 +6,11 @@
 #include <Adafruit_NeoPixel.h>
 
 #define PINLEDSTRIP 6 /** input pin Neopixel is attached to */
-#define NUMPIXELS 16  /** number of neopixels in unit */
+#define NUMPIXELS 16  /** number of neopixels in unit (1 chain) */
+#define PIXELCHAINS 2 /** for having multiple ledstrips within one chain */
 
-Adafruit_NeoPixel pixels = Adafruit_NeoPixel(NUMPIXELS, PINLEDSTRIP, NEO_GRB + NEO_KHZ800);
+
+Adafruit_NeoPixel pixels = Adafruit_NeoPixel(NUMPIXELS * PIXELCHAINS, PINLEDSTRIP, NEO_GRB + NEO_KHZ800);
 
 // those variables are for "05-midiEvents.ino"
 unsigned long lastBarStartMicros = 0;     // microsecond of last bar first tick (@24 ppqm 1, 97, 193, ) to calculate tempo or tickWidth
@@ -199,13 +201,16 @@ void checkLedChange()
     return;
   }
   pixels.clear();
-  for (int i = 0; i < NUMPIXELS; i++)
+  for (int chainNum = 0; chainNum < NUMPIXELS; chainNum++)
   {
-    if (newState[i] == 0)
+    for (int i = 0; i < NUMPIXELS; i++)
     {
-      continue;
+      if (newState[i] == 0)
+      {
+        continue;
+      }
+      pixels.setPixelColor(chainNum * NUMPIXELS + i, newState[i]);
     }
-    pixels.setPixelColor(i, newState[i]);
   }
   pixels.setBrightness(newState[NUMPIXELS]);
   pixels.show();
